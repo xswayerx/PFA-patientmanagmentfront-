@@ -1,0 +1,39 @@
+<div class="container">
+  <div>
+    <h2>Edit Patient</h2>
+  </div>
+  <form [formGroup]="patientForm" (ngSubmit)="updatePatient()">
+    <div class="row">
+      <div class="col-sm-2 col-md-2 col-lg-2 mb-3">
+        <label>Patient Id</label>
+        <input
+          type="number"
+          formControlName="PatientId"
+          class="form-control"
+          readonly
+        />
+      </div>
+      <div class="col-sm-4 col-md-4 col-lg-4 mb-3">
+        <label>Patient Name</label>
+        <input
+          type="text"
+          formControlName="PatientName"
+          class="form-control"
+        />
+      </div>
+      <div class="col-sm-4 col-md-4 col-lg-4 mb-3">
+        <label>rendezvous</label>
+        <input
+          type="date"
+          formControlName="rendezvous"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="mt-2">
+      <button type="submit" class="btn btn-success">
+        UPDATE
+      </button>
+    </div>
+  </form>
+</div>

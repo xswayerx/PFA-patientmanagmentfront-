@@ -1,0 +1,32 @@
+<div class="container">
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h5 class="m-0 font-weight-bold text-primary">Patient List</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+          <thead class="table-light">
+          <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Date</th>
+            <th scope="col">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let patient of patients">
+            <td>{{patient.PatientId}}</td>
+            <td>{{patient.PatientName}}</td>
+            <td>{{patient.rendezvous | date : "yy/MM/dd"}}</td>
+            <td>
+              <button class="btn btn-sm btn-primary me-2" (click)="Delete(patient)">Delete</button>
+              <button class="btn btn-sm btn-warning"  [routerLink]="['/edit-patient', patient.PatientId]">Edit</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

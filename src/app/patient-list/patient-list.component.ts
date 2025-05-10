@@ -16,14 +16,20 @@ export class PatientListComponent {
   patients: PatientModel[];
 
   constructor(private patientService: PatientService) {
-    this.patients = this.patientService.productsList();
+    this.patients = this.patientService.getPatients();
+  }
+  ngOnInit(): void {
+    this.refreshPatientList();
+  }
+  refreshPatientList(): void {
+    this.patients = this.patientService.getPatients();
   }
 
   Delete(patientId: PatientModel) {
     let conf = confirm("Are you sure to delete this product ?")
     if(conf) {
       this.patientService.deletePatient(patientId);
-      this.patients = this.patientService.productsList();
+      this.patients = this.patientService.getPatients();
     }
   }
 

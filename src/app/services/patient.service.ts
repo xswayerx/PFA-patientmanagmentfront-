@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import {PatientModel} from '../models/patient.model';
+import { PatientModel } from '../models/patient.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PatientService {
-  patients: PatientModel [];
+  patients: PatientModel[];
   patient!: PatientModel;
 
   constructor() {
@@ -17,32 +17,35 @@ export class PatientService {
     ];
   }
 
-  productsList(): PatientModel[] {
-    return this.patients
+  getPatients(): PatientModel[] {
+    return this.patients;
   }
 
   addPatient(patient: PatientModel) {
     this.patients.push(patient);
   }
 
-  deletePatient(pat: PatientModel) {
-    const index = this.patients.indexOf(pat, 0);
-    this.patients.splice(index, 1);
-  }
-  editPatient(id : number){
-    this.patient = this.patients.find((p: PatientModel) => p.PatientId === id)!;
-    return this.patient;
-  }
-  updatePatient(prod : PatientModel){
-    this.deletePatient(prod);
-    this.addPatient(prod);
-    // this.sortPatient();
+  deletePatient(patient: PatientModel) {
+    const index = this.patients.findIndex(p => p.PatientId === patient.PatientId);
+    if (index !== -1) {
+      this.patients.splice(index, 1);
+    }
   }
 
-  getPatientById(patientId: string) {
-    return this.patients.find(patient => patient.PatientId === Number(patientId));
-
+  editPatient(id: number) {
+    const foundPatient = this.patients.find((p: PatientModel) => p.PatientId === id);
+    if (foundPatient) {
+      // Create a copy to avoid direct reference modification
+      this.patient = {...foundPatient};
+      return this.patient;
+    }
+    return new PatientModel();
   }
 
-
+  updatePatient(updatedPatient: PatientModel) {
+    const index = this.patients.findIndex(p => p.PatientId === updatedPatient.PatientId);
+    if (index !== -1) {
+      this.patients[index] = {...updatedPatient};
+    }
+  }
 }

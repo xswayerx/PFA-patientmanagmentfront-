@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
     let auth: boolean = this.authService.login(username, password);
     if (auth) {
       // Navigate to patient-list instead of admin since that route exists
-      this.router.navigateByUrl("/patient-list");
+      this.router.navigateByUrl("/dashboard");
     } else {
       this.loginError = true;
     }

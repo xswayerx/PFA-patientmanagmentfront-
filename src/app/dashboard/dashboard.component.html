@@ -96,7 +96,7 @@
           </thead>
           <tbody>
           <tr *ngIf="patients.length === 0">
-            <td colspan="3" class="text-center py-3">No patients in the system</td>
+            <td colspan="5" class="text-center py-5">No patients in the system</td>
           </tr>
           <tr *ngFor="let patient of patients.slice(0, 5)">
             <td>{{patient.PatientName}}</td>

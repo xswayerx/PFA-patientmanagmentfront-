@@ -6,35 +6,6 @@
 </head>
 <body>
 
-<!-- Navigation bar -->
-<nav *ngIf="!isLoginPage()" class="navbar navbar-expand-sm bg-dark navbar-dark">
-  <ul class="navbar-nav">
-    <li class="nav-item"><a class="nav-link" routerLink="dashboard">HOME</a></li>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <!-- Dropdown -->
-    <div class="dropdown">
-      <button class="btn btn-secondary bg-dark dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-        Patient
-      </button>
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-        <li><a class="dropdown-item" routerLink="add-patient">ADD</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" routerLink="patient-list">LIST</a></li>
-      </ul>
-    </div>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <div class="dropdown">
-      <button class="btn btn-secondary bg-dark dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-        User
-      </button>
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-        <li><a class="dropdown-item" routerLink="login">LOGOUT</a></li>
-        <li><hr class="dropdown-divider"></li>
-      </ul>
-    </div>
-  </ul>
-</nav>
-
 <!-- Header section for non-login pages -->
 <header *ngIf="!isLoginPage()" class="bg-primary text-white p-4 shadow">
   <div class="container">

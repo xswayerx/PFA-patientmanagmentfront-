@@ -1,0 +1,63 @@
+/* src/app/patient-list/patient-list.component.css */
+.search-icon {
+  left: 10px;
+  top: 10px;
+  color: #6c757d;
+}
+
+.search-input {
+  padding-left: 30px;
+}
+
+.contact-info {
+  font-size: 0.875rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-fallback {
+  background: #007bff;
+  color: white;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.patient-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.patient-row:hover {
+  background-color: #f8f9fa;
+}
+
+.text-small {
+  font-size: 0.75rem;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal {
+  background-color: rgba(0,0,0,0.4);
+}
+
+/* Fix for Bootstrap modal display */
+.modal-open {
+  overflow: hidden;
+}

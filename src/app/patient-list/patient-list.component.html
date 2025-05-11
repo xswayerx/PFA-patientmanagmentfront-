@@ -1,27 +1,74 @@
+<!-- src/app/patient-list/patient-list.component.html -->
 <div class="container">
   <div class="card shadow mb-4">
-    <div class="card-header py-3">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
       <h5 class="m-0 font-weight-bold text-primary">Patient List</h5>
+      <button class="btn btn-primary" (click)="openAddDialog()">
+        <i class="fas fa-plus mr-2"></i> Add Patient
+      </button>
     </div>
+
     <div class="card-body">
+      <!-- Search -->
+      <div class="mb-3 position-relative">
+        <i class="fas fa-search position-absolute search-icon"></i>
+        <input type="text" class="form-control search-input"
+               placeholder="Search patients..."
+               [(ngModel)]="searchTerm">
+      </div>
+
       <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover">
           <thead class="table-light">
           <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Name</th>
-            <th scope="col">Date</th>
-            <th scope="col">Actions</th>
+            <th>Patient</th>
+            <th>Contact</th>
+            <th>Date</th>
+            <th class="text-right">Actions</th>
           </tr>
           </thead>
           <tbody>
-          <tr *ngFor="let patient of patients">
-            <td>{{patient.PatientId}}</td>
-            <td>{{patient.PatientName}}</td>
-            <td>{{patient.rendezvous | date : "yy/MM/dd"}}</td>
+          <tr *ngIf="filteredPatients.length === 0">
+            <td colspan="4" class="text-center py-4 text-muted">
+              No patients found. Add a new patient to get started.
+            </td>
+          </tr>
+          <tr *ngFor="let patient of filteredPatients" class="patient-row">
             <td>
-              <button class="btn btn-sm btn-primary me-2" (click)="Delete(patient)">Delete</button>
-              <button class="btn btn-sm btn-warning"  [routerLink]="['/edit-patient', patient.PatientId]">Edit</button>
+              <div class="d-flex align-items-center gap-3">
+                <div class="avatar">
+                  <div class="avatar-fallback">
+                    {{ getInitials(patient.PatientName) }}
+                  </div>
+                </div>
+                <div>
+                  <p class="font-weight-medium mb-0">{{ patient.PatientName }}</p>
+                  <p class="text-small text-muted text-truncate" style="max-width: 200px;">
+                    {{ patient.medicalHistory || "No medical history" }}
+                  </p>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="mb-1 contact-info">
+                <i class="fas fa-phone fa-sm mr-1 text-muted"></i>
+                {{ patient.phone || 'N/A' }}
+              </div>
+              <div class="contact-info">
+                <i class="fas fa-envelope fa-sm mr-1 text-muted"></i>
+                {{ patient.email || 'N/A' }}
+              </div>
+            </td>
+            <td>{{ patient.rendezvous | date:'yy/MM/dd' }}</td>
+            <td class="text-right">
+              <div class="btn-group">
+                <button class="btn btn-sm btn-outline-primary mr-2" (click)="openEditDialog(patient)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="openDeleteDialog(patient)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
             </td>
           </tr>
           </tbody>
@@ -29,4 +76,155 @@
       </div>
     </div>
   </div>
+
+  <!-- Add Patient Modal -->
+  <div class="modal" [class.show]="isAddDialogOpen" [style.display]="isAddDialogOpen ? 'block' : 'none'">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add New Patient</h5>
+          <button type="button" class="close" (click)="closeDialog()">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="patientForm">
+            <div class="row mb-3">
+              <div class="col">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" class="form-control" formControlName="PatientName">
+              </div>
+              <div class="col">
+                <label for="phone">Phone Number *</label>
+                <input type="text" id="phone" class="form-control" formControlName="phone">
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label for="age">Age</label>
+                <input type="number" id="age" class="form-control" formControlName="age">
+              </div>
+              <div class="col">
+                <label for="gender">Gender</label>
+                <select id="gender" class="form-control" formControlName="gender">
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="email">Email</label>
+              <input type="email" id="email" class="form-control" formControlName="email">
+            </div>
+            <div class="mb-3">
+              <label for="address">Address</label>
+              <input type="text" id="address" class="form-control" formControlName="address">
+            </div>
+            <div class="mb-3">
+              <label for="medicalHistory">Medical History</label>
+              <textarea id="medicalHistory" class="form-control" formControlName="medicalHistory" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="rendezvous">Appointment Date</label>
+              <input type="date" id="rendezvous" class="form-control" formControlName="rendezvous">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
+          <button type="button" class="btn btn-primary" [disabled]="patientForm.invalid" (click)="handleAddPatient()">Add Patient</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Patient Modal -->
+  <div class="modal" [class.show]="isEditDialogOpen" [style.display]="isEditDialogOpen ? 'block' : 'none'">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Patient Information</h5>
+          <button type="button" class="close" (click)="closeDialog()">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="patientForm">
+            <!-- Same form fields as in the Add Dialog -->
+            <div class="row mb-3">
+              <div class="col">
+                <label for="edit-name">Full Name *</label>
+                <input type="text" id="edit-name" class="form-control" formControlName="PatientName">
+              </div>
+              <div class="col">
+                <label for="edit-phone">Phone Number *</label>
+                <input type="text" id="edit-phone" class="form-control" formControlName="phone">
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label for="edit-age">Age</label>
+                <input type="number" id="edit-age" class="form-control" formControlName="age">
+              </div>
+              <div class="col">
+                <label for="edit-gender">Gender</label>
+                <select id="edit-gender" class="form-control" formControlName="gender">
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="edit-email">Email</label>
+              <input type="email" id="edit-email" class="form-control" formControlName="email">
+            </div>
+            <div class="mb-3">
+              <label for="edit-address">Address</label>
+              <input type="text" id="edit-address" class="form-control" formControlName="address">
+            </div>
+            <div class="mb-3">
+              <label for="edit-medicalHistory">Medical History</label>
+              <textarea id="edit-medicalHistory" class="form-control" formControlName="medicalHistory" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="edit-rendezvous">Appointment Date</label>
+              <input type="date" id="edit-rendezvous" class="form-control" formControlName="rendezvous">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
+          <button type="button" class="btn btn-primary" [disabled]="patientForm.invalid" (click)="handleEditPatient()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal" [class.show]="isDeleteDialogOpen" [style.display]="isDeleteDialogOpen ? 'block' : 'none'">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Deletion</h5>
+          <button type="button" class="close" (click)="closeDialog()">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to remove {{ selectedPatient?.PatientName }} from the system? This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
+          <button type="button" class="btn btn-danger" (click)="handleDeletePatient()">Delete Patient</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal backdrop -->
+  <div class="modal-backdrop fade show" *ngIf="isAddDialogOpen || isEditDialogOpen || isDeleteDialogOpen"></div>
 </div>

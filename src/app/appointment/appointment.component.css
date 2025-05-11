@@ -1,0 +1,56 @@
+/* src/app/appointment/appointment.component.css */
+.appointment-card {
+  transition: transform 0.2s;
+}
+
+.appointment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
+.border-left-4 {
+  border-left-width: 4px !important;
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+}
+
+.nav-tabs .nav-link.disabled {
+  color: #6c757d;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.badge {
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-primary {
+  color: #007bff !important;
+}
+
+.border-success {
+  border-left-color: #28a745 !important;
+}
+
+.border-danger {
+  border-left-color: #dc3545 !important;
+}
+
+.border-primary {
+  border-left-color: #007bff !important;
+}
+
+.modal {
+  background-color: rgba(0,0,0,0.4);
+}

@@ -31,8 +31,9 @@ export class DashboardComponent implements OnInit {
 
   loadData(): void {
     // Load patients
-    this.patients = this.patientService.getPatients();
-
+    this.patientService.getAllPatients().subscribe((patients: any[]) => {
+      this.patients = patients;
+    });
     // Load appointments from localStorage
     const storedAppointments = localStorage.getItem('appointments');
     if (storedAppointments) {
@@ -63,12 +64,14 @@ export class DashboardComponent implements OnInit {
     ).length;
   }
 
-  // @ts-ignore
-  getPatientName(patientId: any) {
-    const patient = this.patients.find(p => p.PatientId === patientId);
-    if (patient) {
-      return patient.PatientName;
+
+  getPatientName(patientId: any): string | undefined {
+      const patient = this.patients.find(p => p.Id === patientId);
+      if (patient) {
+        return patient.PatientName;
+      }
+      return undefined;
     }
 
   }
-}
+

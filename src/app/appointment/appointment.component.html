@@ -128,7 +128,7 @@
               <label for="patient">Patient *</label>
               <select id="patient" class="form-control" formControlName="patientId">
                 <option value="">Select a patient</option>
-                <option *ngFor="let patient of patients" [value]="patient.PatientId">
+                <option *ngFor="let patient of patients" [value]="patient.Id">
                   {{patient.PatientName}}
                 </option>
               </select>
@@ -207,7 +207,7 @@
               <label for="edit-patient">Patient *</label>
               <select id="edit-patient" class="form-control" formControlName="patientId">
                 <option value="">Select a patient</option>
-                <option *ngFor="let patient of patients" [value]="patient.PatientId">
+                <option *ngFor="let patient of patients" [value]="patient.Id">
                   {{patient.PatientName}}
                 </option>
               </select>

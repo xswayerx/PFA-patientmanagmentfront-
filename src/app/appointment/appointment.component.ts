@@ -1,4 +1,3 @@
-// src/app/appointment/appointment.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -68,7 +67,9 @@ export class AppointmentComponent implements OnInit {
   }
 
   loadPatients(): void {
-    this.patients = this.patientService.getPatients();
+    this.patientService.getAllPatients().subscribe((patients: PatientModel[]) => {
+      this.patients = patients;
+    });
   }
 
   loadAppointments(): void {
@@ -108,7 +109,7 @@ export class AppointmentComponent implements OnInit {
       case 'patient':
         if (this.selectedPatient) {
           this.filteredAppointments = this.appointments.filter(appointment =>
-            appointment.patientId === this.selectedPatient?.PatientId
+            appointment.patientId === this.selectedPatient?.Id
           );
         }
         break;
@@ -116,7 +117,6 @@ export class AppointmentComponent implements OnInit {
         this.filteredAppointments = [...this.appointments];
     }
 
-    // Sort by date and time
     this.filteredAppointments.sort((a, b) => {
       const dateA = new Date(`${a.date}T${a.time}`);
       const dateB = new Date(`${b.date}T${b.time}`);
@@ -137,11 +137,11 @@ export class AppointmentComponent implements OnInit {
   }
 
   openAddDialog(): void {
-    const today = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+    const today = this.datePipe.transform(new Date(), 'yyyy-MM-dd') || '';
 
     this.appointmentForm.reset({
       id: '',
-      patientId: this.selectedPatient ? this.selectedPatient.PatientId : '',
+      patientId: this.selectedPatient ? this.selectedPatient.Id : '',
       date: today,
       time: '09:00',
       duration: 30,
@@ -154,7 +154,7 @@ export class AppointmentComponent implements OnInit {
   }
 
   openEditDialog(appointment: Appointment): void {
-    this.selectedAppointment = {...appointment};
+    this.selectedAppointment = { ...appointment };
     this.appointmentForm.setValue({
       id: appointment.id,
       patientId: appointment.patientId,
@@ -181,13 +181,11 @@ export class AppointmentComponent implements OnInit {
 
     const newAppointment = this.appointmentForm.value;
 
-    // Check if time slot is available
     if (!this.isTimeSlotAvailable(newAppointment)) {
       alert('This time slot conflicts with an existing appointment.');
       return;
     }
 
-    // Generate ID if not present
     if (!newAppointment.id) {
       newAppointment.id = 'a' + Date.now();
     }
@@ -206,7 +204,6 @@ export class AppointmentComponent implements OnInit {
 
     const updatedAppointment = this.appointmentForm.value;
 
-    // Check if time slot is available (excluding the current appointment)
     if (!this.isTimeSlotAvailable(updatedAppointment, updatedAppointment.id)) {
       alert('This time slot conflicts with an existing appointment.');
       return;
@@ -245,14 +242,17 @@ export class AppointmentComponent implements OnInit {
   }
 
   isTimeSlotAvailable(appointment: Appointment, excludeId?: string): boolean {
-    // Implementation would check if the selected time slot conflicts with existing appointments
-    // For simplicity, we're just returning true
-    return true;
+    return !this.appointments.some(a =>
+      a.id !== excludeId &&
+      a.date === appointment.date &&
+      a.time === appointment.time
+    );
   }
 
   getPatientName(patientId: string): string {
-    const patient = this.patients.find(p => p.PatientId === patientId);
-    return patient ? patient.PatientName : 'Unknown Patient';
+    const patient = this.patients.find(p => p.Id === patientId);
+    // @ts-ignore
+    return <string>patient ? patient.PatientName : 'Unknown Patient0';
   }
 
   getStatusClass(status: string): string {

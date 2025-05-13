@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PatientService } from '../services/patient.service';
 import { PatientModel } from '../models/patient.model';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
@@ -12,7 +11,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
   templateUrl: './patient-list.component.html',
   styleUrls: ['./patient-list.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class PatientListComponent implements OnInit {
   patients: PatientModel[] = [];
@@ -29,7 +28,7 @@ export class PatientListComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.patientForm = this.fb.group({
-      PatientId: [''],
+      Id: [''],
       PatientName: ['', Validators.required],
       age: [''],
       gender: [''],
@@ -46,8 +45,9 @@ export class PatientListComponent implements OnInit {
   }
 
   refreshPatientList(): void {
-    this.patients = this.patientService.getPatients();
-  }
+    this.patientService.getAllPatients().subscribe((data) => {
+      this.patients = data;
+    });  }
 
   get filteredPatients() {
     if (!this.searchTerm) {
@@ -55,9 +55,9 @@ export class PatientListComponent implements OnInit {
     }
 
     return this.patients.filter(patient =>
-      patient.PatientName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      patient.phone?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      patient.email?.toLowerCase().includes(this.searchTerm.toLowerCase())
+        patient.PatientName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        patient.phone?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        patient.email?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 
@@ -71,7 +71,7 @@ export class PatientListComponent implements OnInit {
   openEditDialog(patient: PatientModel): void {
     this.selectedPatient = patient;
     this.patientForm.setValue({
-      PatientId: patient.PatientId,
+      Id: patient.Id,
       PatientName: patient.PatientName,
       age: patient.age || '',
       gender: patient.gender || '',
@@ -94,32 +94,36 @@ export class PatientListComponent implements OnInit {
       return;
     }
 
+
     const newPatient = this.patientForm.value;
-    this.patientService.addPatient(newPatient);
-    this.refreshPatientList();
-    this.isAddDialogOpen = false;
+    this.patientService.createPatient(newPatient).subscribe(() => {
+      this.refreshPatientList();
+      this.isAddDialogOpen = false;
+    });
   }
 
   handleEditPatient(): void {
-    if (this.patientForm.invalid) {
+    if (this.patientForm.invalid || !this.selectedPatient) {
       return;
     }
 
     const updatedPatient = this.patientForm.value;
-    this.patientService.updatePatient(updatedPatient);
-    this.refreshPatientList();
-    this.isEditDialogOpen = false;
+    this.patientService.updatePatient(this.selectedPatient.Id, updatedPatient).subscribe(() => {
+      this.refreshPatientList();
+      this.isEditDialogOpen = false;
+    });
   }
 
   handleDeletePatient(): void {
     if (this.selectedPatient) {
-      this.patientService.deletePatient(this.selectedPatient);
-      this.refreshPatientList();
-      this.isDeleteDialogOpen = false;
+      this.patientService.deletePatient(this.selectedPatient.Id).subscribe(() => {
+        this.refreshPatientList();
+        this.isDeleteDialogOpen = false;
+      });
     }
   }
 
-  getInitials(name: string): string {
+  getInitials(name: string | undefined): string {
     if (!name) return '--';
     return name
       .split(' ')
@@ -134,4 +138,5 @@ export class PatientListComponent implements OnInit {
     this.isEditDialogOpen = false;
     this.isDeleteDialogOpen = false;
   }
+
 }

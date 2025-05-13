@@ -20,7 +20,6 @@ import { CommonModule } from '@angular/common';
     MatButtonModule,
     MatDividerModule,
     CommonModule,
-    //RouterOutlet
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'

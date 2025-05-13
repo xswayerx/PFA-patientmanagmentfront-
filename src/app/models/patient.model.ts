@@ -1,10 +1,11 @@
 // src/app/models/patient.model.ts
 export class PatientModel {
-  PatientId: string;
-  PatientName: string;
-  rendezvous: Date;
 
-  // New fields
+
+  Id?: string;
+  PatientName?: string;
+  rendezvous?: Date;
+
   age?: string;
   gender?: string;
   phone?: string;
@@ -12,9 +13,5 @@ export class PatientModel {
   address?: string;
   medicalHistory?: string;
 
-  constructor() {
-    this.PatientId = '';
-    this.PatientName = '';
-    this.rendezvous = new Date();
-  }
+
 }

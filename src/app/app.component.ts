@@ -19,11 +19,11 @@ interface Appointment {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink]
+  imports: [CommonModule, RouterOutlet]
 })
 export class AppComponent implements OnInit {
   title = 'newProject';
-  patients: PatientModel[] = [];
+  patients: any[] = [];
   appointments: Appointment[] = [];
   selectedPatient: PatientModel | null = null;
   activeTab: string = 'dashboard';
@@ -56,8 +56,9 @@ export class AppComponent implements OnInit {
 
   loadData(): void {
     // Load patients
-    this.patients = this.patientService.getPatients();
-
+    this.patientService.getAllPatients().subscribe((patients: any[]) => {
+      this.patients = patients;
+    });
     // Load appointments from localStorage
     const storedAppointments = localStorage.getItem('appointments');
     if (storedAppointments) {

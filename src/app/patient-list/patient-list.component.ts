@@ -46,8 +46,24 @@ export class PatientListComponent implements OnInit {
 
   refreshPatientList(): void {
     this.patientService.getAllPatients().subscribe((data) => {
-      this.patients = data;
-    });  }
+      console.log('Raw API response:', data); // Log raw API response
+      this.patients = data.map((patient: any) => {
+        if (!patient.Id && patient.id) {
+          console.warn('Mapping "id" to "Id" for patient:', patient); // Handle different field names
+          patient.Id = patient.id; // Map `id` to `Id`
+        }
+
+        if (!patient.Id) {
+          console.error('Patient with missing Id:', patient); // Log invalid data
+        }
+
+        return {
+          ...patient,
+          Id: patient.Id || null // Ensure `Id` is present
+        };
+      });
+    });
+  }
 
   get filteredPatients() {
     if (!this.searchTerm) {
@@ -68,25 +84,34 @@ export class PatientListComponent implements OnInit {
     this.isAddDialogOpen = true;
   }
 
-  openEditDialog(patient: PatientModel): void {
-    this.selectedPatient = patient;
-    this.patientForm.setValue({
-      Id: patient.Id,
-      PatientName: patient.PatientName,
-      age: patient.age || '',
-      gender: patient.gender || '',
-      phone: patient.phone || '',
-      email: patient.email || '',
-      address: patient.address || '',
-      medicalHistory: patient.medicalHistory || '',
-      rendezvous: patient.rendezvous || new Date()
-    });
-    this.isEditDialogOpen = true;
+  openEditDialog(patient: PatientModel, ): void {
+    console.log('Opening edit dialog for patient:', patient); // Debugging
+    if (patient?.Id) {
+      this.selectedPatient = patient;
+      this.patientForm.patchValue({
+        Id: patient.Id,
+        PatientName: patient.PatientName || '',
+        age: patient.age || '',
+        gender: patient.gender || '',
+        phone: patient.phone || '',
+        email: patient.email || '',
+        address: patient.address || '',
+        medicalHistory: patient.medicalHistory || '',
+        rendezvous: patient.rendezvous || new Date()
+      });
+      this.isEditDialogOpen = true;
+    } else {
+      console.error('Invalid patient selected for editing. Patient data:', patient);
+    }
   }
 
   openDeleteDialog(patient: PatientModel): void {
-    this.selectedPatient = patient;
-    this.isDeleteDialogOpen = true;
+    if (patient?.Id) {
+      this.selectedPatient = patient;
+      this.isDeleteDialogOpen = true;
+    } else {
+      console.error('Invalid patient selected for deletion. Patient data:', patient);
+    }
   }
 
   handleAddPatient(): void {
@@ -103,23 +128,40 @@ export class PatientListComponent implements OnInit {
   }
 
   handleEditPatient(): void {
-    if (this.patientForm.invalid || !this.selectedPatient) {
+    console.log('Editing patient:', this.selectedPatient); // Debugging
+    if (this.patientForm.invalid || !this.selectedPatient?.Id) {
+      console.error('Invalid patient or missing Id for update.');
       return;
     }
 
     const updatedPatient = this.patientForm.value;
-    this.patientService.updatePatient(this.selectedPatient.Id, updatedPatient).subscribe(() => {
-      this.refreshPatientList();
-      this.isEditDialogOpen = false;
-    });
+    this.patientService.updatePatient(this.selectedPatient.Id, updatedPatient).subscribe({
+        next: () => {
+          console.log('Patient updated successfully');
+          this.refreshPatientList();
+          this.isEditDialogOpen = false;
+        },
+        error: (err: any) => {
+          console.error('Error updating patient:', err);
+        }
+    }
+    );
   }
 
   handleDeletePatient(): void {
-    if (this.selectedPatient) {
-      this.patientService.deletePatient(this.selectedPatient.Id).subscribe(() => {
-        this.refreshPatientList();
-        this.isDeleteDialogOpen = false;
+    if (this.selectedPatient?.Id) {
+      this.patientService.deletePatient(this.selectedPatient.Id).subscribe({
+        next: () => {
+          console.log('Deleted successfully');
+          this.refreshPatientList();
+          this.isDeleteDialogOpen = false;
+        },
+        error: (err: any) => {
+          console.error('Error deleting patient:', err);
+        }
       });
+    } else {
+      console.error('No valid patient selected for deletion.');
     }
   }
 

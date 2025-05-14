@@ -68,7 +68,7 @@ export class DashboardComponent implements OnInit {
   getPatientName(patientId: any): string | undefined {
       const patient = this.patients.find(p => p.Id === patientId);
       if (patient) {
-        return patient.PatientName;
+        return patient.name;
       }
       return undefined;
     }

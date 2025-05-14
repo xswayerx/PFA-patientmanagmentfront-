@@ -38,11 +38,11 @@
               <div class="d-flex align-items-center gap-3">
                 <div class="avatar">
                   <div class="avatar-fallback">
-                    {{ getInitials(patient.PatientName) }}
+                    {{ getInitials(patient.name) }}
                   </div>
                 </div>
                 <div>
-                  <p class="font-weight-medium mb-0">{{ patient.PatientName }}</p>
+                  <p class="font-weight-medium mb-0">{{ patient.name }}</p>
                   <p class="text-small text-muted text-truncate" style="max-width: 200px;">
                     {{ patient.medicalHistory || "No medical history" }}
                   </p>
@@ -92,7 +92,7 @@
             <div class="row mb-3">
               <div class="col">
                 <label for="name">Full Name *</label>
-                <input type="text" id="name" class="form-control" formControlName="PatientName">
+                <input type="text" id="name" class="form-control" formControlName="name">
               </div>
               <div class="col">
                 <label for="phone">Phone Number *</label>
@@ -156,7 +156,7 @@
             <div class="row mb-3">
               <div class="col">
                 <label for="edit-name">Full Name *</label>
-                <input type="text" id="edit-name" class="form-control" formControlName="PatientName">
+                <input type="text" id="edit-name" class="form-control" formControlName="name">
               </div>
               <div class="col">
                 <label for="edit-phone">Phone Number *</label>
@@ -215,7 +215,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <p>Are you sure you want to remove {{ selectedPatient?.PatientName }} from the system? This action cannot be undone.</p>
+          <p>Are you sure you want to remove {{ selectedPatient?.name }} from the system? This action cannot be undone.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>

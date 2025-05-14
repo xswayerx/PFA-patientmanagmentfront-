@@ -7,7 +7,7 @@ import { DatePipe } from '@angular/common';
 
 interface Appointment {
   id: string;
-  patientId: string;
+  Id: string;
   date: string;
   time: string;
   duration: number;
@@ -50,7 +50,7 @@ export class AppointmentComponent implements OnInit {
   ) {
     this.appointmentForm = this.fb.group({
       id: [''],
-      patientId: ['', Validators.required],
+      Id: ['', Validators.required],
       date: ['', Validators.required],
       time: ['09:00', Validators.required],
       duration: [30],
@@ -69,6 +69,7 @@ export class AppointmentComponent implements OnInit {
   loadPatients(): void {
     this.patientService.getAllPatients().subscribe((patients: PatientModel[]) => {
       this.patients = patients;
+      this.filterAppointments(); // Ensure appointments are filtered after patients are loaded
     });
   }
 
@@ -109,7 +110,7 @@ export class AppointmentComponent implements OnInit {
       case 'patient':
         if (this.selectedPatient) {
           this.filteredAppointments = this.appointments.filter(appointment =>
-            appointment.patientId === this.selectedPatient?.Id
+            appointment.Id === this.selectedPatient?.Id
           );
         }
         break;
@@ -141,7 +142,7 @@ export class AppointmentComponent implements OnInit {
 
     this.appointmentForm.reset({
       id: '',
-      patientId: this.selectedPatient ? this.selectedPatient.Id : '',
+      Id: this.selectedPatient ? this.selectedPatient.Id : '',
       date: today,
       time: '09:00',
       duration: 30,
@@ -157,7 +158,7 @@ export class AppointmentComponent implements OnInit {
     this.selectedAppointment = { ...appointment };
     this.appointmentForm.setValue({
       id: appointment.id,
-      patientId: appointment.patientId,
+      Id: appointment.Id,
       date: appointment.date,
       time: appointment.time,
       duration: appointment.duration,
@@ -245,15 +246,17 @@ export class AppointmentComponent implements OnInit {
     return !this.appointments.some(a =>
       a.id !== excludeId &&
       a.date === appointment.date &&
+      a.date === appointment.date &&
       a.time === appointment.time
     );
   }
 
-  getPatientName(patientId: string): string {
-    const patient = this.patients.find(p => p.Id === patientId);
-    // @ts-ignore
-    return <string>patient ? patient.PatientName : 'Unknown Patient0';
-  }
+
+getPatientName(Id: string): string {
+  const patient = this.patients.find(p => p.Id === Id);
+  return patient ? patient.name || 'Unknown Patient' : 'Unknown Patient';
+}
+
 
   getStatusClass(status: string): string {
     switch (status) {
@@ -269,4 +272,6 @@ export class AppointmentComponent implements OnInit {
     this.isEditDialogOpen = false;
     this.isDeleteDialogOpen = false;
   }
+
+  //protected readonly PatientModel = PatientModel;
 }

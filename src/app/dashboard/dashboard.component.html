@@ -61,7 +61,7 @@
           </tr>
           <tr *ngFor="let appointment of todayAppointments">
             <td>{{appointment.time}}</td>
-            <td>{{getPatientName(appointment.patientId)}}</td>
+            <td>{{getPatientName(appointment.Id)}}</td>
             <td>{{appointment.reason}}</td>
             <td>
                 <span class="badge" [ngClass]="{
@@ -99,7 +99,7 @@
             <td colspan="5" class="text-center py-5">No patients in the system</td>
           </tr>
           <tr *ngFor="let patient of patients.slice(0, 5)">
-            <td>{{patient.PatientName}}</td>
+            <td>{{patient.name}}</td>
             <td>{{patient.phone || 'N/A'}}</td>
             <td>{{patient.rendezvous | date:'MMM d, y'}}</td>
           </tr>

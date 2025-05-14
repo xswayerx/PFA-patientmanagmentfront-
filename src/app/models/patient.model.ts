@@ -2,7 +2,7 @@
 export class PatientModel {
 
   Id?: string;
-  PatientName?: string;
+  name?: string;
   rendezvous?: Date;
   age?: string;
   gender?: string;

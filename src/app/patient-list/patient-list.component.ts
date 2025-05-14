@@ -29,7 +29,7 @@ export class PatientListComponent implements OnInit {
   ) {
     this.patientForm = this.fb.group({
       Id: [''],
-      PatientName: ['', Validators.required],
+      name: ['', Validators.required],
       age: [''],
       gender: [''],
       phone: ['', Validators.required],
@@ -71,7 +71,7 @@ export class PatientListComponent implements OnInit {
     }
 
     return this.patients.filter(patient =>
-        patient.PatientName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        patient.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         patient.phone?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         patient.email?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
@@ -81,6 +81,7 @@ export class PatientListComponent implements OnInit {
     this.patientForm.reset({
       rendezvous: new Date()
     });
+
     this.isAddDialogOpen = true;
   }
 
@@ -90,7 +91,7 @@ export class PatientListComponent implements OnInit {
       this.selectedPatient = patient;
       this.patientForm.patchValue({
         Id: patient.Id,
-        PatientName: patient.PatientName || '',
+        PatientName: patient.name|| '',
         age: patient.age || '',
         gender: patient.gender || '',
         phone: patient.phone || '',

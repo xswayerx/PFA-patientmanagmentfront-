@@ -1,4 +1,3 @@
-<!-- src/app/appointment/appointment.component.html -->
 <div class="container">
   <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
@@ -26,16 +25,16 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" [class.active]="activeTab === 'patient'"
-             [class.disabled]="!selectedPatient" (click)="selectedPatient && changeTab('patient')">
-            {{selectedPatient ? selectedPatient.PatientName + "'s" : "Patient"}}
+          <a class="nav-link" [class.active]="activeTab === 'patient'" [class.disabled]="!selectedPatient"
+             (click)="selectedPatient && changeTab('patient')">
+            {{selectedPatient ? selectedPatient.name + "'s Appointments" : "Patient"}}
           </a>
         </li>
       </ul>
 
       <!-- Appointment List -->
       <div *ngIf="filteredAppointments.length === 0" class="text-center py-5 bg-light rounded">
-        <p class="text-muted mb-2">No appointments found.</p>
+        <p class="text-muted mb-2">No appointments found for the selected tab.</p>
         <button class="btn btn-link" (click)="openAddDialog()">
           Schedule a new appointment
         </button>
@@ -69,9 +68,8 @@
             <div class="card-body">
               <div class="mb-2">
                 <i class="fas fa-user text-muted mr-2"></i>
-                {{getPatientName(appointment.patientId)}}
+                {{getPatientName(appointment.Id)}}
               </div>
-
               <div *ngIf="appointment.notes" class="mb-2 small text-muted">
                 <i class="fas fa-file-alt text-muted mr-2"></i>
                 {{appointment.notes}}
@@ -126,10 +124,10 @@
           <form [formGroup]="appointmentForm">
             <div class="form-group">
               <label for="patient">Patient *</label>
-              <select id="patient" class="form-control" formControlName="patientId">
+              <select id="patient" class="form-control" formControlName="Id">
                 <option value="">Select a patient</option>
                 <option *ngFor="let patient of patients" [value]="patient.Id">
-                  {{patient.PatientName}}
+                  {{patient.name}}
                 </option>
               </select>
             </div>
@@ -202,13 +200,12 @@
         </div>
         <div class="modal-body">
           <form [formGroup]="appointmentForm">
-            <!-- Same form fields as in Add Dialog -->
             <div class="form-group">
               <label for="edit-patient">Patient *</label>
-              <select id="edit-patient" class="form-control" formControlName="patientId">
+              <select id="edit-patient" class="form-control" formControlName="Id">
                 <option value="">Select a patient</option>
                 <option *ngFor="let patient of patients" [value]="patient.Id">
-                  {{patient.PatientName}}
+                  {{patient.name}}
                 </option>
               </select>
             </div>

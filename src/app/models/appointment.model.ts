@@ -6,6 +6,5 @@ export class AppointmentModel {
   time?: string;
   duration?: number;
   type?: string;
-  notes?: string;
   status?: 'pending' | 'completed' | 'cancelled';
 }

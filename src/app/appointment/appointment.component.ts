@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PatientService } from '../services/patient.service';
+import { AppointmentService } from '../services/appointment.service';
 import { PatientModel } from '../models/patient.model';
 import { DatePipe } from '@angular/common';
 
@@ -45,6 +46,7 @@ export class AppointmentComponent implements OnInit {
 
   constructor(
     private patientService: PatientService,
+    private appointmentService: AppointmentService,
     private fb: FormBuilder,
     private datePipe: DatePipe
   ) {
@@ -63,23 +65,115 @@ export class AppointmentComponent implements OnInit {
   ngOnInit(): void {
     this.loadPatients();
     this.loadAppointments();
-    this.filterAppointments();
   }
 
   loadPatients(): void {
-    this.patientService.getAllPatients().subscribe((patients: PatientModel[]) => {
-      this.patients = patients;
-      this.filterAppointments(); // Ensure appointments are filtered after patients are loaded
+    this.patientService.getAllPatients().subscribe({
+      next: (patients: PatientModel[]) => {
+        this.patients = patients;
+        this.filterAppointments();
+      },
+      error: (err) => {
+        console.error('Error fetching patients:', err);
+      }
     });
   }
 
   loadAppointments(): void {
-    const storedAppointments = localStorage.getItem('appointments');
-    if (storedAppointments) {
-      this.appointments = JSON.parse(storedAppointments);
-    } else {
-      this.appointments = [];
-      localStorage.setItem('appointments', JSON.stringify(this.appointments));
+    this.appointmentService.getAllAppointments().subscribe({
+      next: (data) => {
+        this.appointments = data || [];
+        this.filterAppointments();
+      },
+      error: (err) => {
+        console.error('Error fetching appointments:', err);
+        this.appointments = [];
+      }
+    });
+  }
+
+  addAppointment(): void {
+    if (this.appointmentForm.invalid) {
+      return;
+    }
+
+    const newAppointment = this.appointmentForm.value;
+
+    // Validate patient existence
+    const patientExists = this.patients.some(patient => patient.Id === newAppointment.Id);
+    if (!patientExists) {
+      alert('Invalid patient selected. Please select a valid patient.');
+      return;
+    }
+
+    if (!this.isTimeSlotAvailable(newAppointment)) {
+      alert('This time slot conflicts with an existing appointment.');
+      return;
+    }
+
+    this.appointmentService.createAppointment(newAppointment).subscribe({
+      next: (response) => {
+        console.log('Appointment created:', response);
+        this.loadAppointments();
+        this.closeDialog();
+      },
+      error: (err) => {
+        console.error('Error creating appointment:', err);
+      }
+    });
+  }
+
+  updateAppointment(): void {
+    if (this.appointmentForm.invalid) {
+      return;
+    }
+
+    const updatedAppointment = this.appointmentForm.value;
+    const patientExists = this.patients.some(patient => patient.Id === updatedAppointment.Id);
+    if (!patientExists) {
+      alert('Invalid patient selected. Please select a valid patient.');
+      return;
+    }
+    if (!this.isTimeSlotAvailable(updatedAppointment)) {
+      alert('This time slot conflicts with an existing appointment.');
+      return;
+    }
+
+    this.appointmentService.updateAppointment(updatedAppointment.id, updatedAppointment).subscribe({
+      next: (response) => {
+        console.log('Appointment updated:', response);
+        this.loadAppointments();
+        this.closeDialog();
+      },
+      error: (err) => {
+        console.error('Error updating appointment:', err);
+      }
+    });
+  }
+
+  deleteAppointment(): void {
+    if (!this.selectedAppointment?.id) {
+      console.error('No valid appointment ID provided for deletion.');
+      return;
+    }
+
+    this.appointmentService.deleteAppointment(this.selectedAppointment.id).subscribe({
+      next: () => {
+        console.log('Appointment deleted successfully');
+        this.loadAppointments();
+        this.closeDialog();
+      },
+      error: (err) => {
+        console.error('Error deleting appointment:', err);
+      }
+    });
+  }
+
+  updateAppointmentStatus(appointment: Appointment, status: 'scheduled' | 'completed' | 'cancelled'): void {
+    const index = this.appointments.findIndex(a => a.id === appointment.id);
+    if (index !== -1) {
+      this.appointments[index].status = status;
+      this.filterAppointments();
     }
   }
 
@@ -155,10 +249,16 @@ export class AppointmentComponent implements OnInit {
   }
 
   openEditDialog(appointment: Appointment): void {
-    this.selectedAppointment = { ...appointment };
-    this.appointmentForm.setValue({
+    const patientExists = this.patients.some(patient => patient.Id === appointment.Id);
+
+    if (!patientExists) {
+      console.error(`No patient found with Id: ${appointment.Id}`);
+      appointment.Id = ''; // Set to a default value if no matching patient is found
+    }
+
+    this.appointmentForm.patchValue({
       id: appointment.id,
-      Id: appointment.Id,
+      Id: appointment.Id || '', // Provide a default value if Id is null or undefined
       date: appointment.date,
       time: appointment.time,
       duration: appointment.duration,
@@ -175,88 +275,19 @@ export class AppointmentComponent implements OnInit {
     this.isDeleteDialogOpen = true;
   }
 
-  handleAddAppointment(): void {
-    if (this.appointmentForm.invalid) {
-      return;
-    }
-
-    const newAppointment = this.appointmentForm.value;
-
-    if (!this.isTimeSlotAvailable(newAppointment)) {
-      alert('This time slot conflicts with an existing appointment.');
-      return;
-    }
-
-    if (!newAppointment.id) {
-      newAppointment.id = 'a' + Date.now();
-    }
-
-    this.appointments.push(newAppointment);
-    localStorage.setItem('appointments', JSON.stringify(this.appointments));
-
-    this.isAddDialogOpen = false;
-    this.filterAppointments();
-  }
-
-  handleEditAppointment(): void {
-    if (this.appointmentForm.invalid) {
-      return;
-    }
-
-    const updatedAppointment = this.appointmentForm.value;
-
-    if (!this.isTimeSlotAvailable(updatedAppointment, updatedAppointment.id)) {
-      alert('This time slot conflicts with an existing appointment.');
-      return;
-    }
-
-    const index = this.appointments.findIndex(a => a.id === updatedAppointment.id);
-    if (index !== -1) {
-      this.appointments[index] = updatedAppointment;
-      localStorage.setItem('appointments', JSON.stringify(this.appointments));
-    }
-
-    this.isEditDialogOpen = false;
-    this.filterAppointments();
-  }
-
-  handleDeleteAppointment(): void {
-    if (this.selectedAppointment) {
-      const index = this.appointments.findIndex(a => a.id === this.selectedAppointment?.id);
-      if (index !== -1) {
-        this.appointments.splice(index, 1);
-        localStorage.setItem('appointments', JSON.stringify(this.appointments));
-      }
-    }
-
-    this.isDeleteDialogOpen = false;
-    this.filterAppointments();
-  }
-
-  updateAppointmentStatus(appointment: Appointment, status: 'scheduled' | 'completed' | 'cancelled'): void {
-    const index = this.appointments.findIndex(a => a.id === appointment.id);
-    if (index !== -1) {
-      this.appointments[index].status = status;
-      localStorage.setItem('appointments', JSON.stringify(this.appointments));
-      this.filterAppointments();
-    }
-  }
-
   isTimeSlotAvailable(appointment: Appointment, excludeId?: string): boolean {
     return !this.appointments.some(a =>
       a.id !== excludeId &&
-      a.date === appointment.date &&
       a.date === appointment.date &&
       a.time === appointment.time
     );
   }
 
-
-getPatientName(Id: string): string {
-  const patient = this.patients.find(p => p.Id === Id);
-  return patient ? patient.name || 'Unknown Patient' : 'Unknown Patient';
-}
-
+  getPatientName(Id: string): string {
+    const patient = this.patients.find(p => p.Id === Id);
+    // @ts-ignore
+    return <string>patient ? patient.name : 'Unknown Patient';
+  }
 
   getStatusClass(status: string): string {
     switch (status) {
@@ -272,6 +303,4 @@ getPatientName(Id: string): string {
     this.isEditDialogOpen = false;
     this.isDeleteDialogOpen = false;
   }
-
-  //protected readonly PatientModel = PatientModel;
 }

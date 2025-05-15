@@ -24,12 +24,6 @@
             Past
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="activeTab === 'patient'" [class.disabled]="!selectedPatient"
-             (click)="selectedPatient && changeTab('patient')">
-            {{selectedPatient ? selectedPatient.name + "'s Appointments" : "Patient"}}
-          </a>
-        </li>
       </ul>
 
       <!-- Appointment List -->
@@ -123,7 +117,7 @@
         <div class="modal-body">
           <form [formGroup]="appointmentForm">
             <div class="form-group">
-              <label for="patient">Patient *</label>
+              <label for="patient">Patient*</label>
               <select id="patient" class="form-control" formControlName="Id">
                 <option value="">Select a patient</option>
                 <option *ngFor="let patient of patients" [value]="patient.Id">
@@ -180,7 +174,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
           <button type="button" class="btn btn-primary" [disabled]="appointmentForm.invalid"
-                  (click)="handleAddAppointment()">
+                  (click)="addAppointment()">
             Schedule Appointment
           </button>
         </div>
@@ -267,7 +261,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
           <button type="button" class="btn btn-primary" [disabled]="appointmentForm.invalid"
-                  (click)="handleEditAppointment()">
+                  (click)="updateAppointment()">
             Save Changes
           </button>
         </div>
@@ -290,7 +284,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
-          <button type="button" class="btn btn-danger" (click)="handleDeleteAppointment()">
+          <button type="button" class="btn btn-danger" (click)="deleteAppointment()">
             Delete Appointment
           </button>
         </div>

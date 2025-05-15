@@ -5,6 +5,7 @@ import { PatientService } from '../services/patient.service';
 import { PatientModel } from '../models/patient.model';
 import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {AppointmentService} from '../services/appointment.service';
 
 @Component({
   selector: 'app-patient-list',

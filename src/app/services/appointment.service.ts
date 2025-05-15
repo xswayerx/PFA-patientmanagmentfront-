@@ -27,7 +27,7 @@ export class AppointmentService {
     return this.http.put(`${this.apiUrl}/${id}`, appointment);
   }
 
-  deleteAppointment(id: string): Observable<any> {
+  deleteAppointment(id: string | undefined): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

@@ -53,6 +53,7 @@ export class AppointmentComponent implements OnInit {
     this.appointmentForm = this.fb.group({
       id: [''],
       Id: ['', Validators.required],
+      PatientModel : patientService.getAllPatients(),
       date: ['', Validators.required],
       time: ['09:00', Validators.required],
       duration: [30],
@@ -99,15 +100,8 @@ export class AppointmentComponent implements OnInit {
 
     const newAppointment = this.appointmentForm.value;
 
-    // Validate patient existence
-    const patientExists = this.patients.some(patient => patient.Id === newAppointment.Id);
-    if (!patientExists) {
-      alert('Invalid patient selected. Please select a valid patient.');
-      return;
-    }
-
-    if (!this.isTimeSlotAvailable(newAppointment)) {
-      alert('This time slot conflicts with an existing appointment.');
+    if (!newAppointment.Id) {
+      alert('Please select a valid patient before adding an appointment.');
       return;
     }
 
@@ -236,7 +230,7 @@ export class AppointmentComponent implements OnInit {
 
     this.appointmentForm.reset({
       id: '',
-      Id: this.selectedPatient ? this.selectedPatient.Id : '',
+      Id: this.selectedPatient ? this.selectedPatient.Id : '', // Default to empty if no patient is selected
       date: today,
       time: '09:00',
       duration: 30,
@@ -249,16 +243,20 @@ export class AppointmentComponent implements OnInit {
   }
 
   openEditDialog(appointment: Appointment): void {
-    const patientExists = this.patients.some(patient => patient.Id === appointment.Id);
+    const UpdatedAppointment = this.appointmentForm.value;
 
+    console.log('Patients:', this.patients); // Debugging
+    console.log('Selected Patient Id:', UpdatedAppointment.PatientModel.Id); // Debugging
+
+    const patientExists = this.patients.some(patient => patient.Id === UpdatedAppointment.PatientModel.Id);
     if (!patientExists) {
-      console.error(`No patient found with Id: ${appointment.Id}`);
-      appointment.Id = ''; // Set to a default value if no matching patient is found
+      alert('Invalid patient selected. Please select a valid patient.');
+      return;
     }
 
     this.appointmentForm.patchValue({
       id: appointment.id,
-      Id: appointment.Id || '', // Provide a default value if Id is null or undefined
+      // Provide a default value if Id is null or undefined
       date: appointment.date,
       time: appointment.time,
       duration: appointment.duration,

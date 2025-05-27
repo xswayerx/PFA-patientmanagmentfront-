@@ -1,5 +1,6 @@
-// src/app/dashboard/dashboard.component.ts
+
 import { Component, OnInit } from '@angular/core';
+import { AppointmentModel } from '../models/appointment.model';
 import { CommonModule } from '@angular/common';
 import { PatientService } from '../services/patient.service';
 import { PatientModel } from '../models/patient.model';
@@ -13,8 +14,8 @@ import { PatientModel } from '../models/patient.model';
 })
 export class DashboardComponent implements OnInit {
   patients: PatientModel[] = [];
-  appointments: any[] = []; // Use proper appointment interface/model
-  todayAppointments: any[] = [];
+  appointments: AppointmentModel[] = [];
+  todayAppointments: AppointmentModel[] = [];
   stats = {
     totalPatients: 0,
     totalAppointments: 0,
@@ -26,28 +27,6 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
-    this.calculateStats();
-  }
-
-  loadData(): void {
-    // Load patients
-    this.patientService.getAllPatients().subscribe((patients: any[]) => {
-      this.patients = patients;
-    });
-    // Load appointments from localStorage
-    const storedAppointments = localStorage.getItem('appointments');
-    if (storedAppointments) {
-      this.appointments = JSON.parse(storedAppointments).map((appointment: any) => ({
-        ...appointment,
-        date: new Date(appointment.date)
-      }));
-
-      // Filter today's appointments
-      const today = new Date();
-      this.todayAppointments = this.appointments.filter(appointment =>
-        appointment.date.toDateString() === today.toDateString()
-      );
-    }
   }
 
   calculateStats(): void {
@@ -56,7 +35,7 @@ export class DashboardComponent implements OnInit {
 
     const now = new Date();
     this.stats.upcomingAppointments = this.appointments.filter(
-      app => new Date(app.date) > now
+      app => app.date instanceof Date && app.date > now
     ).length;
 
     this.stats.completedAppointments = this.appointments.filter(
@@ -64,14 +43,42 @@ export class DashboardComponent implements OnInit {
     ).length;
   }
 
+  loadData(): void {
+    this.patientService.getAllPatients().subscribe({
+      next: (patients: PatientModel[]) => {
+        this.patients = patients;
 
-  getPatientName(patientId: any): string | undefined {
-      const patient = this.patients.find(p => p.Id === patientId);
-      if (patient) {
-        return patient.name;
+        const storedAppointments = localStorage.getItem('appointments');
+        if (storedAppointments) {
+          this.appointments = JSON.parse(storedAppointments).map((appointment: any): AppointmentModel => ({
+            ...appointment,
+            date: appointment.date instanceof Date ? appointment.date : new Date(appointment.date)
+          }));
+
+          const today = new Date();
+          this.todayAppointments = this.appointments.filter(appointment =>
+            appointment.date instanceof Date &&
+            appointment.date.toDateString() === today.toDateString()
+          );
+        } else {
+          this.appointments = [];
+          this.todayAppointments = [];
+        }
+
+        this.calculateStats();
+      },
+      error: (err) => {
+        console.error('Error loading patients:', err);
+        this.patients = [];
+        this.appointments = [];
+        this.todayAppointments = [];
+        this.calculateStats();
       }
-      return undefined;
-    }
-
+    });
   }
 
+  getPatientName(patientId: any): string | undefined {
+    const patient = this.patients.find(p => p.Id === patientId);
+    return patient ? patient.name : undefined;
+  }
+}

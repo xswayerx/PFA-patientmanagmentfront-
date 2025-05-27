@@ -1,4 +1,5 @@
 <!-- src/app/dashboard/dashboard.component.html -->
+
 <div class="container mt-4">
   <div class="row">
     <!-- Stats cards -->
@@ -61,12 +62,12 @@
           </tr>
           <tr *ngFor="let appointment of todayAppointments">
             <td>{{appointment.time}}</td>
-            <td>{{getPatientName(appointment.Id)}}</td>
+            <td>{{getPatientName(appointment.id)}}</td>
             <td>{{appointment.reason}}</td>
             <td>
                 <span class="badge" [ngClass]="{
                   'bg-success': appointment.status === 'completed',
-                  'bg-warning': appointment.status === 'pending',
+                  'bg-warning': appointment.status === 'upcoming',
                   'bg-danger': appointment.status === 'cancelled'
                 }">
                   {{appointment.status}}

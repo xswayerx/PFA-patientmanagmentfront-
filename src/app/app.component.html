@@ -1,66 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Patient Management</title>
-</head>
-<body>
+<!-- src/app/app.component.html -->
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8" />
+              <title>Patient Management</title>
+            </head>
+            <body style="background: #f8fafc; min-height: 100vh;">
 
-<!-- Header section for non-login pages -->
-<header *ngIf="!isLoginPage()" class="bg-primary text-white p-4 shadow">
-  <div class="container">
-    <h1 class="display-5 fw-bold">Patient Appointment System</h1>
-    <p class="lead">Manage patients and schedule appointments with ease</p>
-  </div>
-</header>
+            <!-- Headers -->
+            <header *ngIf="!isLoginPage()" class="bg-gradient-primary text-white py-5 shadow-sm" style="background: linear-gradient(90deg, #4e73df 0%, #1cc88a 100%); border-radius: 0 0 1.5rem 1.5rem;">
+              <div class="container">
+                <h1 class="display-4 fw-bold mb-2">Patient Appointment System</h1>
+                <p class="lead mb-0">Manage patients and schedule appointments with ease</p>
+              </div>
+            </header>
 
-<!-- Main content container -->
-<div class="container mt-4 mb-4" *ngIf="!isLoginPage()">
-  <div class="card shadow">
-    <div class="card-body">
-      <!-- Tab navigation -->
-      <ul class="nav nav-tabs mb-4">
-        <li class="nav-item flex-fill text-center">
-          <a class="nav-link" [class.active]="activeTab === 'dashboard'" (click)="navigateToTab('dashboard')">
-            Dashboard
-          </a>
-        </li>
-        <li class="nav-item flex-fill text-center">
-          <a class="nav-link" [class.active]="activeTab === 'patients'" (click)="navigateToTab('patients')">
-            Patients
-          </a>
-        </li>
-        <li class="nav-item flex-fill text-center">
-          <a class="nav-link" [class.active]="activeTab === 'appointments'" (click)="navigateToTab('appointments')">
-            Appointments
-          </a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
+            <div class="container mt-5 mb-4" *ngIf="!isLoginPage()">
+              <div class="card shadow-lg border-0" style="border-radius: 1.25rem;">
+                <div class="card-body pb-0">
+                  <!-- tab-->
+                  <ul class="nav nav-tabs nav-justified mb-4" style="border-bottom: none;">
+                    <li class="nav-item">
+                      <a class="nav-link px-4 py-3" [class.active]="activeTab === 'dashboard'" (click)="navigateToTab('dashboard')" style="border-radius: 1rem 1rem 0 0;">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link px-4 py-3" [class.active]="activeTab === 'patients'" (click)="navigateToTab('patients')" style="border-radius: 1rem 1rem 0 0;">
+                        <i class="bi bi-people-fill me-2"></i> Patients
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link px-4 py-3" [class.active]="activeTab === 'appointments'" (click)="navigateToTab('appointments')" style="border-radius: 1rem 1rem 0 0;">
+                        <i class="bi bi-calendar-check me-2"></i> Appointments
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
 
-<!-- Selected patient notification -->
-<div *ngIf="selectedPatient" class="toast show position-fixed bottom-0 end-0 m-3" style="max-width: 300px;">
-  <div class="toast-header">
-    <strong class="me-auto">Selected Patient</strong>
-    <button type="button" class="btn-close" (click)="clearSelectedPatient()"></button>
-  </div>
-  <div class="toast-body">
-    <p class="fw-bold mb-1">{{selectedPatient.name}}</p>
-    <p class="small mb-0">{{selectedPatient.phone || 'No phone number'}}</p>
-  </div>
-</div>
 
-<!-- Router outlet -->
-<router-outlet></router-outlet>
+            <div *ngIf="selectedPatient" class="toast show position-fixed bottom-0 end-0 m-4 shadow-lg" style="max-width: 320px; border-radius: 1rem; background: #fff;">
+              <div class="toast-header bg-primary text-white" style="border-radius: 1rem 1rem 0 0;">
+                <strong class="me-auto">Selected Patient</strong>
+                <button type="button" class="btn-close btn-close-white" (click)="clearSelectedPatient()"></button>
+              </div>
+              <div class="toast-body">
+                <p class="fw-bold mb-1">{{selectedPatient.name}}</p>
+                <p class="small mb-0 text-muted">{{selectedPatient.phone || 'No phone number'}}</p>
+              </div>
+            </div>
 
-<!-- Footer -->
-<footer *ngIf="!isLoginPage()" class="bg-light border-top py-3 mt-5">
-  <div class="container text-center text-muted small">
-    <p>© 2025 Patient Appointment System. All rights reserved.</p>
-  </div>
-</footer>
+            <!-- Router outlet -->
+            <router-outlet></router-outlet>
 
-</body>
-</html>
+            <!-- Footer -->
+            <footer *ngIf="!isLoginPage()" class="bg-white border-top py-4 mt-5 shadow-sm" style="border-radius: 1.5rem 1.5rem 0 0;">
+              <div class="container text-center text-muted small">
+                <p class="mb-0">© 2025 Patient Appointment System. All rights reserved.</p>
+              </div>
+            </footer>
+
+             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+            </body>
+            </html>

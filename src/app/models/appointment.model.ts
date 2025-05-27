@@ -1,10 +1,10 @@
-// src/app/models/appointment.model.ts
-export class AppointmentModel {
-  id?: string;
-  Id?: string;
-  date?: Date;
-  time?: string;
-  duration?: number;
-  type?: string;
-  status?: 'pending' | 'completed' | 'cancelled';
+
+export interface AppointmentModel {
+  id: number;
+  patientId: number;
+  date: Date;
+  time: string; // format HH:mm
+  status: 'upcoming' | 'completed' | 'cancelled';
+  reason?: string; // optionnel : motif du rendez-vous
+  notes?: string;  // optionnel : remarques du médecin
 }

@@ -30,4 +30,5 @@ export class PatientService {
   deletePatient(id: string | undefined): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
 }

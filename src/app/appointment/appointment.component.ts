@@ -7,8 +7,8 @@ import { PatientModel } from '../models/patient.model';
 import { DatePipe } from '@angular/common';
 
 interface Appointment {
-  id: string;
-  Id: string;
+  id: number;
+  Id: number;
   date: string;
   time: string;
   duration: number;
@@ -52,8 +52,7 @@ export class AppointmentComponent implements OnInit {
   ) {
     this.appointmentForm = this.fb.group({
       id: [''],
-      Id: ['', Validators.required],
-      PatientModel : patientService.getAllPatients(),
+      Id: [null, Validators.required], // Patient ID
       date: ['', Validators.required],
       time: ['09:00', Validators.required],
       duration: [30],
@@ -64,6 +63,7 @@ export class AppointmentComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     this.loadPatients();
     this.loadAppointments();
   }
@@ -94,20 +94,31 @@ export class AppointmentComponent implements OnInit {
   }
 
   addAppointment(): void {
-    if (this.appointmentForm.invalid) {
+    if (this.appointmentForm.invalid) return;
+    const formValue = this.appointmentForm.value;
+    // console.log(this.appointmentForm.value.Id);
+    const patient = this.patients.find(p => String(p.Id) === String(formValue.Id));
+    console.log(formValue.Id);
+    if (!patient) {
+      alert('Please select a valid patient.');
       return;
     }
 
-    const newAppointment = this.appointmentForm.value;
+    const payload = {
+      ...formValue,
+      Id: patient.Id,
+      patient,
+      date: formValue.date,
+      time: formValue.time.length === 5 ? formValue.time + ':00' : formValue.time,
+      duration: Number(formValue.duration),
+      type: formValue.type,
+      notes: formValue.notes,
+      status: formValue.status
+    };
 
-    if (!newAppointment.Id) {
-      alert('Please select a valid patient before adding an appointment.');
-      return;
-    }
 
-    this.appointmentService.createAppointment(newAppointment).subscribe({
-      next: (response) => {
-        console.log('Appointment created:', response);
+    this.appointmentService.createAppointment(payload).subscribe({
+      next: () => {
         this.loadAppointments();
         this.closeDialog();
       },
@@ -118,24 +129,30 @@ export class AppointmentComponent implements OnInit {
   }
 
   updateAppointment(): void {
-    if (this.appointmentForm.invalid) {
+    if (this.appointmentForm.invalid) return;
+    const formValue = this.appointmentForm.value;
+    const patient = this.patients.find(p => String(p.Id) === String(formValue.Id));
+    if (!patient) {
+      alert('Invalid patient selected.');
       return;
     }
 
-    const updatedAppointment = this.appointmentForm.value;
-    const patientExists = this.patients.some(patient => patient.Id === updatedAppointment.Id);
-    if (!patientExists) {
-      alert('Invalid patient selected. Please select a valid patient.');
-      return;
-    }
-    if (!this.isTimeSlotAvailable(updatedAppointment)) {
-      alert('This time slot conflicts with an existing appointment.');
-      return;
-    }
+    const payload = {
+      ...formValue,
+      Id: patient.Id,
+      patient, //patient : patient,
+      date: formValue.date,
+      time: formValue.time.length === 5 ? formValue.time + ':00' : formValue.time,
+      duration: Number(formValue.duration),
+      type: formValue.type,
+      notes: formValue.notes,
+      status: formValue.status
+    };
 
-    this.appointmentService.updateAppointment(updatedAppointment.id, updatedAppointment).subscribe({
-      next: (response) => {
-        console.log('Appointment updated:', response);
+    // Do NOT delete payload.Id here
+
+    this.appointmentService.updateAppointment(payload.id, payload).subscribe({
+      next: () => {
         this.loadAppointments();
         this.closeDialog();
       },
@@ -164,6 +181,7 @@ export class AppointmentComponent implements OnInit {
   }
 
   updateAppointmentStatus(appointment: Appointment, status: 'scheduled' | 'completed' | 'cancelled'): void {
+
     const index = this.appointments.findIndex(a => a.id === appointment.id);
     if (index !== -1) {
       this.appointments[index].status = status;
@@ -226,11 +244,13 @@ export class AppointmentComponent implements OnInit {
   }
 
   openAddDialog(): void {
+    if (this.patients.length === 0) {
+      this.loadPatients();
+    }
     const today = this.datePipe.transform(new Date(), 'yyyy-MM-dd') || '';
-
     this.appointmentForm.reset({
       id: '',
-      Id: this.selectedPatient ? this.selectedPatient.Id : '', // Default to empty if no patient is selected
+      Id: this.selectedPatient ? this.selectedPatient.Id : (this.patients[0]?.Id ?? null),
       date: today,
       time: '09:00',
       duration: 30,
@@ -238,25 +258,19 @@ export class AppointmentComponent implements OnInit {
       notes: '',
       status: 'scheduled'
     });
-
     this.isAddDialogOpen = true;
   }
 
   openEditDialog(appointment: Appointment): void {
-    const UpdatedAppointment = this.appointmentForm.value;
-
-    console.log('Patients:', this.patients); // Debugging
-    console.log('Selected Patient Id:', UpdatedAppointment.PatientModel.Id); // Debugging
-
-    const patientExists = this.patients.some(patient => patient.Id === UpdatedAppointment.PatientModel.Id);
-    if (!patientExists) {
+const patientExists = this.patients.some(patient => String(patient.Id) === String(appointment.Id));
+      if (!patientExists) {
       alert('Invalid patient selected. Please select a valid patient.');
       return;
     }
 
     this.appointmentForm.patchValue({
       id: appointment.id,
-      // Provide a default value if Id is null or undefined
+      Id: appointment.Id,
       date: appointment.date,
       time: appointment.time,
       duration: appointment.duration,
@@ -275,17 +289,20 @@ export class AppointmentComponent implements OnInit {
 
   isTimeSlotAvailable(appointment: Appointment, excludeId?: string): boolean {
     return !this.appointments.some(a =>
+        // @ts-ignore
       a.id !== excludeId &&
       a.date === appointment.date &&
       a.time === appointment.time
     );
   }
 
-  getPatientName(Id: string): string {
-    const patient = this.patients.find(p => p.Id === Id);
-    // @ts-ignore
+  getPatientName(PatientId: number ): number {
+
+     const patient = this.patients.find(p => p.Id === PatientId);
+     console.log(this.appointmentForm.value.Id);
+     // @ts-ignore
     return <string>patient ? patient.name : 'Unknown Patient';
-  }
+   }
 
   getStatusClass(status: string): string {
     switch (status) {

@@ -1,3 +1,4 @@
+import {PatientModel} from './patient.model';
 
 export interface AppointmentModel {
   id: number;

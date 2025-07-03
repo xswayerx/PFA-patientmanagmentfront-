@@ -1,7 +1,7 @@
 // src/app/models/patient.model.ts
 export class PatientModel {
 
-  Id?: string;
+  Id?: number;
   name?: string;
   rendezvous?: Date;
   age?: string;

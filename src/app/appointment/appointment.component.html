@@ -62,9 +62,8 @@
             <div class="card-body">
               <div class="mb-2">
                 <i class="fas fa-user text-muted mr-2"></i>
-                {{getPatientName(appointment.Id)}}
-              </div>
-              <div *ngIf="appointment.notes" class="mb-2 small text-muted">
+              {{appointmentForm.value.Id ? getPatientName(appointmentForm.value.Id) : getPatientName(appointment.Id) }} <!--   only stores temporarily ( when I refresh the page, it will be lost)-->
+                <div *ngIf="appointment.notes" class="mb-2 small text-muted">
                 <i class="fas fa-file-alt text-muted mr-2"></i>
                 {{appointment.notes}}
               </div>
@@ -118,9 +117,10 @@
           <form [formGroup]="appointmentForm">
             <div class="form-group">
               <label for="patient">Patient*</label>
-              <select id="patient" class="form-control" formControlName="Id">
-                <option value="">Select a patient</option>
-                <option *ngFor="let patient of patients" [value]="patient.Id">
+              <!-- Edit Appointment Modal -->
+              <select id="edit-patient" class="form-control" formControlName="Id">
+                <option [ngValue]="null" disabled>Select a patient</option>
+                <option *ngFor="let patient of patients" [ngValue]="patient.Id">
                   {{patient.name}}
                 </option>
               </select>
@@ -198,7 +198,7 @@
               <label for="edit-patient">Patient *</label>
               <select id="edit-patient" class="form-control" formControlName="Id">
                 <option value="">Select a patient</option>
-                <option *ngFor="let patient of patients" [value]="patient.Id">
+                <option *ngFor="let patient of patients" [ngValue]="patient.Id">
                   {{patient.name}}
                 </option>
               </select>
@@ -294,4 +294,5 @@
 
   <!-- Modal backdrop -->
   <div class="modal-backdrop fade show" *ngIf="isAddDialogOpen || isEditDialogOpen || isDeleteDialogOpen"></div>
+</div>
 </div>

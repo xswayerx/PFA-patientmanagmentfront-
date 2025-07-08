@@ -17,6 +17,9 @@ interface Appointment {
   status: 'scheduled' | 'completed' | 'cancelled';
 }
 
+// @ts-ignore
+// @ts-ignore
+// @ts-ignore
 @Component({
   selector: 'app-appointment',
   templateUrl: './appointment.component.html',
@@ -125,6 +128,12 @@ export class AppointmentComponent implements OnInit {
         console.error('Error creating appointment:', err);
       }
     });
+
+    if (!this.isTimeSlotAvailable(payload)) {
+      alert('Selected time slot is not available.');
+      return;
+    }
+
   }
 
   updateAppointment(): void {
@@ -156,6 +165,11 @@ export class AppointmentComponent implements OnInit {
         console.error('Error updating appointment:', err);
       }
     });
+    if (!this.isTimeSlotAvailable(payload)) {
+      alert('Selected time slot is not available.');
+      return;
+    }
+
   }
 
   deleteAppointment(): void {

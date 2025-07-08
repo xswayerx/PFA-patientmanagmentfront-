@@ -25,7 +25,7 @@
       <div class="card bg-info text-white h-100">
         <div class="card-body">
           <h5 class="card-title">Upcoming</h5>
-          <h2 class="display-4">{{stats.upcomingAppointments}}</h2>
+          <h2 class="display-4">{{stats.scheduledAppointments}}</h2>
         </div>
       </div>
     </div>
@@ -67,7 +67,7 @@
             <td>
                 <span class="badge" [ngClass]="{
                   'bg-success': appointment.status === 'completed',
-                  'bg-warning': appointment.status === 'upcoming',
+                  'bg-warning': appointment.status === 'scheduled',
                   'bg-danger': appointment.status === 'cancelled'
                 }">
                   {{appointment.status}}

@@ -1,9 +1,9 @@
-
 import { Component, OnInit } from '@angular/core';
 import { AppointmentModel } from '../models/appointment.model';
 import { CommonModule } from '@angular/common';
 import { PatientService } from '../services/patient.service';
 import { PatientModel } from '../models/patient.model';
+import {AppointmentService} from '../services/appointment.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,11 +19,16 @@ export class DashboardComponent implements OnInit {
   stats = {
     totalPatients: 0,
     totalAppointments: 0,
-    upcomingAppointments: 0,
+    scheduledAppointments: 0,
     completedAppointments: 0
   };
 
-  constructor(private patientService: PatientService) { }
+constructor(
+  private patientService: PatientService,
+  private appointmentService: AppointmentService
+) {}
+
+
 
   ngOnInit(): void {
     this.loadData();
@@ -32,10 +37,11 @@ export class DashboardComponent implements OnInit {
   calculateStats(): void {
     this.stats.totalPatients = this.patients.length;
     this.stats.totalAppointments = this.appointments.length;
+    console.log(this.stats.totalAppointments);
 
     const now = new Date();
-    this.stats.upcomingAppointments = this.appointments.filter(
-      app => app.date instanceof Date && app.date > now
+    this.stats.scheduledAppointments = this.appointments.filter(
+      app => app.status === 'scheduled'
     ).length;
 
     this.stats.completedAppointments = this.appointments.filter(
@@ -54,18 +60,35 @@ export class DashboardComponent implements OnInit {
             ...appointment,
             date: appointment.date instanceof Date ? appointment.date : new Date(appointment.date)
           }));
-
           const today = new Date();
           this.todayAppointments = this.appointments.filter(appointment =>
             appointment.date instanceof Date &&
             appointment.date.toDateString() === today.toDateString()
           );
+          this.calculateStats();
         } else {
-          this.appointments = [];
-          this.todayAppointments = [];
+          // Fetch from backend if local storage is empty
+          this.appointmentService.getAllAppointments().subscribe({
+            next: (data: AppointmentModel[]) => {
+              this.appointments = data.map((appointment: any): AppointmentModel => ({
+                ...appointment,
+                date: appointment.date instanceof Date ? appointment.date : new Date(appointment.date)
+              }));
+              const today = new Date();
+              this.todayAppointments = this.appointments.filter(appointment =>
+                appointment.date instanceof Date &&
+                appointment.date.toDateString() === today.toDateString()
+              );
+              this.calculateStats();
+            },
+            error: (err) => {
+              console.error('Error loading appointments:', err);
+              this.appointments = [];
+              this.todayAppointments = [];
+              this.calculateStats();
+            }
+          });
         }
-
-        this.calculateStats();
       },
       error: (err) => {
         console.error('Error loading patients:', err);

@@ -5,7 +5,7 @@ export interface AppointmentModel {
   patientId: number;
   date: Date;
   time: string; // format HH:mm
-  status: 'upcoming' | 'completed' | 'cancelled';
-  reason?: string; // optionnel : motif du rendez-vous
-  notes?: string;  // optionnel : remarques du médecin
+  status: 'scheduled' | 'completed' | 'cancelled';
+  reason?: string;
+  notes?: string;
 }

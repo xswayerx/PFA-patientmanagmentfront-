@@ -22,11 +22,11 @@ interface Appointment {
   imports: [CommonModule, RouterOutlet]
 })
 export class AppComponent implements OnInit {
-  title = 'newProject';
+  title = 'Patient Management System';
   patients: any[] = [];
   appointments: Appointment[] = [];
   selectedPatient: PatientModel | null = null;
-  activeTab: string = 'dashboard';
+  activeTab: string = 'login';
   currentUrl: string = '';
 
   constructor(
@@ -49,8 +49,12 @@ export class AppComponent implements OnInit {
       this.activeTab = 'patients';
     } else if (this.currentUrl.includes('appointments')) {
       this.activeTab = 'appointments';
-    } else {
+    } else if (this.currentUrl.includes('dashboard')) {
       this.activeTab = 'dashboard';
+    }
+    else {
+      // Default tab
+      this.activeTab = 'login';
     }
   }
 
@@ -73,7 +77,9 @@ export class AppComponent implements OnInit {
   }
 
   isLoginPage(): boolean {
-    return this.currentUrl.includes('login');
+    // Use currentUrl if set, otherwise fallback to router.url
+    const url = this.currentUrl || this.router.url;
+    return url.includes('login');
   }
 
   handleSelectPatient(patient: PatientModel): void {

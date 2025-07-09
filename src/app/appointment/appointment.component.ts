@@ -106,6 +106,7 @@ export class AppointmentComponent implements OnInit {
       return;
     }
 
+
     const payload = {
       ...formValue,
       patientId: formValue.Id, // send as patientId
@@ -117,10 +118,13 @@ export class AppointmentComponent implements OnInit {
       status: formValue.status
     };
 
-
-
+    if (!this.isTimeSlotAvailable(payload)) {
+      alert('Selected time slot is not available.');
+      return;
+    }
     this.appointmentService.createAppointment(payload).subscribe({
       next: () => {
+
         this.loadAppointments();
         this.closeDialog();
       },
@@ -129,10 +133,6 @@ export class AppointmentComponent implements OnInit {
       }
     });
 
-    if (!this.isTimeSlotAvailable(payload)) {
-      alert('Selected time slot is not available.');
-      return;
-    }
 
   }
 
@@ -156,6 +156,10 @@ export class AppointmentComponent implements OnInit {
 
     console.log(payload);
 
+    if (!this.isTimeSlotAvailable(payload)) {
+      alert('Selected time slot is not available.');
+      return;
+    }
     this.appointmentService.updateAppointment(payload.id, payload).subscribe({
       next: () => {
         this.loadAppointments();
@@ -165,10 +169,6 @@ export class AppointmentComponent implements OnInit {
         console.error('Error updating appointment:', err);
       }
     });
-    if (!this.isTimeSlotAvailable(payload)) {
-      alert('Selected time slot is not available.');
-      return;
-    }
 
   }
 

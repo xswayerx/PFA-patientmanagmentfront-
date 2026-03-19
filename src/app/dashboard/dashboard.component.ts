@@ -37,9 +37,6 @@ constructor(
   calculateStats(): void {
     this.stats.totalPatients = this.patients.length;
     this.stats.totalAppointments = this.appointments.length;
-    console.log(this.stats.totalAppointments);
-
-    const now = new Date();
     this.stats.scheduledAppointments = this.appointments.filter(
       app => app.status === 'scheduled'
     ).length;
@@ -100,8 +97,9 @@ constructor(
     });
   }
 
-  getPatientName(patientId: any): string | undefined {
-    const patient = this.patients.find(p => p.Id === patientId);
-    return patient ? patient.name : undefined;
+  getPatientName(patientId: number | undefined | null): string {
+    if (patientId == null) return 'Unknown';
+    const patient = this.patients.find(p => Number(p.Id) === Number(patientId));
+    return patient?.name || 'Unknown';
   }
 }

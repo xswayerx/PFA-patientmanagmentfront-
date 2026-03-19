@@ -1,97 +1,107 @@
-<div class="container">
-  <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-      <h5 class="m-0 font-weight-bold text-primary">Appointment Scheduler</h5>
-      <button class="btn btn-primary" (click)="openAddDialog()">
-        <i class="fas fa-calendar-plus mr-2"></i> Schedule Appointment
-      </button>
+<div>
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-3">
+    <div>
+      <h2 class="mb-1" style="font-weight: 800;">Appointments</h2>
+      <div class="text-muted">Schedule, track, and manage appointments</div>
     </div>
-    <div class="card-body">
-      <!-- Tabs -->
-      <ul class="nav nav-tabs mb-4">
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="activeTab === 'upcoming'" (click)="changeTab('upcoming')">
-            Upcoming
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="activeTab === 'today'" (click)="changeTab('today')">
-            Today
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="activeTab === 'past'" (click)="changeTab('past')">
-            Past
-          </a>
-        </li>
-      </ul>
+    <button class="btn btn-primary" (click)="openAddDialog()">
+      <i class="fas fa-calendar-plus me-2"></i>
+      Schedule Appointment
+    </button>
+  </div>
 
-      <!-- Appointment List -->
-      <div *ngIf="filteredAppointments.length === 0" class="text-center py-5 bg-light rounded">
-        <p class="text-muted mb-2">No appointments found for the selected tab.</p>
-        <button class="btn btn-link" (click)="openAddDialog()">
-          Schedule a new appointment
-        </button>
+  <div class="card app-card mb-4">
+    <div class="card-header app-card-header py-3">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="app-chip"><i class="fas fa-filter"></i><span>View</span></span>
+        </div>
+        <ul class="nav nav-pills">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'upcoming'" (click)="changeTab('upcoming')">Upcoming</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'today'" (click)="changeTab('today')">Today</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'past'" (click)="changeTab('past')">Past</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="filteredAppointments.length === 0" class="text-center py-5 rounded" style="background: var(--app-surface-2); border: 1px dashed var(--app-border); border-radius: var(--app-radius);">
+        <div class="metric-icon mb-2" style="margin-inline: auto;">
+          <i class="fas fa-calendar-times"></i>
+        </div>
+        <p class="text-muted mb-2">No appointments found for the selected view.</p>
+        <button class="btn btn-link" (click)="openAddDialog()">Schedule a new appointment</button>
       </div>
 
-      <div *ngIf="filteredAppointments.length > 0" class="row">
-        <div *ngFor="let appointment of filteredAppointments" class="col-md-6 mb-4">
-          <div class="card appointment-card border-left-4" [ngClass]="{
+      <div *ngIf="filteredAppointments.length > 0" class="row g-3">
+        <div *ngFor="let appointment of filteredAppointments" class="col-12 col-lg-6">
+          <div class="card app-card appointment-card border-left-4" [ngClass]="{
             'border-success': appointment.status === 'completed',
             'border-danger': appointment.status === 'cancelled',
             'border-primary': appointment.status === 'scheduled'
           }">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="m-0 font-weight-bold">{{appointment.type}}</h6>
-                <small>
-                  {{appointment.date | date:'MMM d, y'}} at {{appointment.time}} ({{appointment.duration}} min)
-                </small>
-              </div>
-              <div>
-                <span [ngClass]="getStatusClass(appointment.status)" class="badge">
-                  <i class="fas" [ngClass]="{
-                    'fa-check-circle': appointment.status === 'completed',
-                    'fa-times-circle': appointment.status === 'cancelled',
-                    'fa-clock': appointment.status === 'scheduled'
-                  }"></i>
-                  {{appointment.status | titlecase}}
-                </span>
+            <div class="card-header app-card-header py-3 d-flex justify-content-between align-items-start gap-3">
+              <div class="w-100">
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <h6 class="m-0" style="font-weight: 800;">{{appointment.type}}</h6>
+                  <span [ngClass]="getStatusClass(appointment.status)" class="badge">
+                    <i class="fas" [ngClass]="{
+                      'fa-check-circle': appointment.status === 'completed',
+                      'fa-times-circle': appointment.status === 'cancelled',
+                      'fa-clock': appointment.status === 'scheduled'
+                    }"></i>
+                    {{appointment.status | titlecase}}
+                  </span>
+                </div>
+                <div class="text-muted small mt-1">
+                  <i class="far fa-calendar me-1"></i>
+                  {{appointment.date | date:'MMM d, y'}}
+                  <span class="mx-2">•</span>
+                  <i class="far fa-clock me-1"></i>
+                  {{appointment.time}}
+                  <span class="mx-2">•</span>
+                  {{appointment.duration}} min
+                </div>
               </div>
             </div>
+
             <div class="card-body">
-              <div class="mb-2">
-                <i class="fas fa-user text-muted mr-2"></i>
-                {{getPatientName(appointment.patientId)}}
-                <div *ngIf="appointment.notes" class="mb-2 small text-muted">
-                <i class="fas fa-file-alt text-muted mr-2"></i>
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                <div class="text-muted">
+                  <i class="fas fa-user me-2"></i>
+                  <span style="font-weight: 700; color: var(--app-text);">{{getPatientName(appointment.patientId)}}</span>
+                </div>
+              </div>
+
+              <div *ngIf="appointment.notes" class="small text-muted mb-3">
+                <i class="fas fa-file-alt me-2"></i>
                 {{appointment.notes}}
               </div>
 
-              <hr>
-
-              <div class="d-flex justify-content-between">
-                <!-- Status Actions -->
-                <div *ngIf="appointment.status === 'scheduled'">
-                  <button class="btn btn-sm btn-outline-success mr-2"
-                          (click)="updateAppointmentStatus(appointment, 'completed')">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2" style="border-top: 1px solid var(--app-border);">
+                <div *ngIf="appointment.status === 'scheduled'" class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-success" (click)="updateAppointmentStatus(appointment, 'completed')">
+                    <i class="fas fa-check me-1"></i>
                     Complete
                   </button>
-                  <button class="btn btn-sm btn-outline-danger"
-                          (click)="updateAppointmentStatus(appointment, 'cancelled')">
+                  <button class="btn btn-sm btn-outline-danger" (click)="updateAppointmentStatus(appointment, 'cancelled')">
+                    <i class="fas fa-ban me-1"></i>
                     Cancel
                   </button>
                 </div>
-                <div *ngIf="appointment.status !== 'scheduled'">
-                  &nbsp;
-                </div>
+                <div *ngIf="appointment.status !== 'scheduled'">&nbsp;</div>
 
-                <!-- Edit/Delete Actions -->
-                <div>
-                  <button class="btn btn-sm btn-outline-primary mr-2" (click)="openEditDialog(appointment)">
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-primary" (click)="openEditDialog(appointment)" title="Edit">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="openDeleteDialog(appointment)">
+                  <button *ngIf="authService.hasRole('admin')" class="btn btn-sm btn-outline-danger" (click)="openDeleteDialog(appointment)" title="Delete">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
@@ -284,7 +294,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
-          <button type="button" class="btn btn-danger" (click)="deleteAppointment()">
+          <button *ngIf="authService.hasRole('admin')" type="button" class="btn btn-danger" (click)="deleteAppointment()">
             Delete Appointment
           </button>
         </div>
@@ -294,5 +304,4 @@
 
   <!-- Modal backdrop -->
   <div class="modal-backdrop fade show" *ngIf="isAddDialogOpen || isEditDialogOpen || isDeleteDialogOpen"></div>
-</div>
 </div>

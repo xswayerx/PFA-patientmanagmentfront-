@@ -1,33 +1,45 @@
 import { Injectable } from '@angular/core';
 import {Router} from "@angular/router";
+import { KeycloakService } from '../auth/keycloak.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  public users:any ={
-    admin:{ password:'1234',roles : ['EMPLOYE','ADMIN']},
-    user1:{ password:'1234',roles  :['EMPLOYE']},
+  public username: string | undefined;
+  public roles: string[] = [];
+
+  constructor(private router: Router, private keycloak: KeycloakService) {
+    this.syncFromKeycloak();
   }
-  public username:any;
-  public isAuthenticated:boolean=false;
-  public roles:string[]=[];
-  constructor(private router:Router) { }
-  public login(username:string,password:string) {
-    if (this.users[username] && this.users[username]['password'] == password) {
-      this.username = username;
-      this.isAuthenticated = true;
-      this.roles = this.users[username]['roles'];
-      return true;
-    } else {
-      return false;
-    }
+
+  get isAuthenticated(): boolean {
+    this.syncFromKeycloak();
+    return this.keycloak.isAuthenticated();
   }
-  logout(){
-    this.isAuthenticated=false;
-    this.roles=[];
-    this.username=undefined;
-    this.router.navigateByUrl('/login')
+
+  hasRole(role: string): boolean {
+    this.syncFromKeycloak();
+    return this.roles.includes(role);
+  }
+
+  // Legacy signature kept for compatibility with existing LoginComponent.
+  // With Keycloak, credentials are handled by the IdP.
+  public async login(_username?: string, _password?: string): Promise<boolean> {
+    await this.keycloak.login();
+    this.syncFromKeycloak();
+    return this.isAuthenticated;
+  }
+
+  async logout(): Promise<void> {
+    await this.keycloak.logout();
+    this.syncFromKeycloak();
+    await this.router.navigateByUrl('/login');
+  }
+
+  private syncFromKeycloak(): void {
+    this.username = this.keycloak.getUsername();
+    this.roles = this.keycloak.getRealmRoles();
   }
 
 }

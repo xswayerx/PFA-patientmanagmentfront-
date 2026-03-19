@@ -5,6 +5,7 @@ import { PatientService } from '../services/patient.service';
 import { AppointmentService } from '../services/appointment.service';
 import { PatientModel } from '../models/patient.model';
 import { DatePipe } from '@angular/common';
+import { AuthService } from '../services/auth.service';
 
 interface Appointment {
   id: number;
@@ -17,9 +18,6 @@ interface Appointment {
   status: 'scheduled' | 'completed' | 'cancelled';
 }
 
-// @ts-ignore
-// @ts-ignore
-// @ts-ignore
 @Component({
   selector: 'app-appointment',
   templateUrl: './appointment.component.html',
@@ -51,7 +49,8 @@ export class AppointmentComponent implements OnInit {
     private patientService: PatientService,
     private appointmentService: AppointmentService,
     private fb: FormBuilder,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    public authService: AuthService
   ) {
     this.appointmentForm = this.fb.group({
       // id: [null,Validators.required],
@@ -100,7 +99,6 @@ export class AppointmentComponent implements OnInit {
     if (this.appointmentForm.invalid) return;
     const formValue = this.appointmentForm.value;
     const patient = this.patients.find(p => String(p.Id) === String(formValue.Id));
-    console.log(patient?.Id);
     if (!patient) {
       alert('Please select a valid patient.');
       return;
@@ -140,7 +138,6 @@ export class AppointmentComponent implements OnInit {
     if (this.appointmentForm.invalid) return;
     const formValue = this.appointmentForm.value;
     const patient = this.patients.find(p => p.Id === formValue.Id );
-    console.log(patient?.Id);
 
     const payload = {
       ...formValue,
@@ -153,8 +150,6 @@ export class AppointmentComponent implements OnInit {
       notes: formValue.notes,
       status: formValue.status
     };
-
-    console.log(payload);
 
     if (!this.isTimeSlotAvailable(payload)) {
       alert('Selected time slot is not available.');
@@ -173,6 +168,10 @@ export class AppointmentComponent implements OnInit {
   }
 
   deleteAppointment(): void {
+    if (!this.authService.hasRole('admin')) {
+      console.warn('Delete blocked: missing admin role');
+      return;
+    }
     if (!this.selectedAppointment?.id) {
       console.error('No valid appointment ID provided for deletion.');
       return;
@@ -180,7 +179,6 @@ export class AppointmentComponent implements OnInit {
 
     this.appointmentService.deleteAppointment(this.selectedAppointment.id).subscribe({
       next: () => {
-        console.log('Appointment deleted successfully');
         this.loadAppointments();
         this.closeDialog();
       },
@@ -311,6 +309,10 @@ export class AppointmentComponent implements OnInit {
   }
 
   openDeleteDialog(appointment: Appointment): void {
+    if (!this.authService.hasRole('admin')) {
+      console.warn('Delete blocked: missing admin role');
+      return;
+    }
     this.selectedAppointment = appointment;
     this.isDeleteDialogOpen = true;
   }

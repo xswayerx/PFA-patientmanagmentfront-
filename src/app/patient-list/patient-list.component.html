@@ -1,78 +1,111 @@
-<!-- src/app/patient-list/patient-list.component.html -->
-<div class="container">
-  <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-      <h5 class="m-0 font-weight-bold text-primary">Patient List</h5>
-      <button class="btn btn-primary" (click)="openAddDialog()">
-        <i class="fas fa-plus mr-2"></i> Add Patient
-      </button>
+<div>
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
+    <div>
+      <div class="text-muted small">Directory</div>
+      <h2 class="mb-1" style="font-weight: 900; letter-spacing: -0.03em;">Patients</h2>
+      <div class="text-muted">Search, review, and manage patient records</div>
     </div>
 
-    <div class="card-body">
-      <!-- Search -->
-      <div class="mb-3 position-relative">
-        <i class="fas fa-search position-absolute search-icon"></i>
-        <input type="text" class="form-control search-input"
-               placeholder="Search patients..."
-               [(ngModel)]="searchTerm">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <div class="input-group" style="min-width: 280px; max-width: 420px;">
+        <span class="input-group-text" style="border-radius: 12px 0 0 12px; border-color: var(--app-border); background: var(--app-surface-2);">
+          <i class="fas fa-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by name, phone, email..."
+          [(ngModel)]="searchTerm"
+          style="border-left: 0;"
+        />
       </div>
 
-      <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover">
-          <thead class="table-light">
-          <tr>
-            <th>Patient</th>
-            <th>Contact</th>
-            <th>Date</th>
-            <th class="text-right">Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngIf="filteredPatients.length === 0">
-            <td colspan="4" class="text-center py-4 text-muted">
-              No patients found. Add a new patient to get started.
-            </td>
-          </tr>
-          <tr *ngFor="let patient of filteredPatients" class="patient-row">
-            <td>
-              <div class="d-flex align-items-center gap-3">
-                <div class="avatar">
-                  <div class="avatar-fallback">
-                    {{ getInitials(patient.name) }}
-                  </div>
+      <button class="btn btn-primary" (click)="openAddDialog()" style="font-weight: 800; padding: .65rem 1rem;">
+        <i class="fas fa-user-plus me-2"></i>
+        Add Patient
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="filteredPatients.length === 0" class="card app-card">
+    <div class="card-body text-center py-5">
+      <div class="metric-icon mb-3" style="margin-inline: auto; width: 56px; height: 56px; border-radius: 18px;">
+        <i class="fas fa-user-injured"></i>
+      </div>
+      <h3 class="mb-1" style="font-weight: 900;">No patients found</h3>
+      <div class="text-muted">Add a new patient to get started, or adjust your search.</div>
+      <button class="btn btn-primary mt-3" (click)="openAddDialog()">
+        <i class="fas fa-plus me-2"></i>
+        Add Patient
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="filteredPatients.length > 0" class="row g-3">
+    <div *ngFor="let patient of filteredPatients" class="col-12 col-md-6 col-xl-4">
+      <div class="card app-card h-100 app-card-hover">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3" style="min-width: 0;">
+              <div class="app-avatar" aria-hidden="true">{{ getInitials(patient.name) }}</div>
+
+              <div style="min-width: 0;">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <div class="text-truncate" style="font-weight: 900; letter-spacing: -0.02em;">{{ patient.name || 'Unnamed patient' }}</div>
+                  <span class="badge rounded-pill" style="padding: .45rem .7rem;" [ngClass]="getConditionBadge(patient).className">
+                    <i [class]="getConditionBadge(patient).icon" class="me-1"></i>
+                    {{ getConditionBadge(patient).label }}
+                  </span>
                 </div>
-                <div>
-                  <p class="font-weight-medium mb-0">{{ patient.name }}</p>
-                  <p class="text-small text-muted text-truncate" style="max-width: 200px;">
-                    {{ patient.medicalHistory || "No medical history" }}
-                  </p>
+
+                <div class="text-muted small mt-1">
+                  <span *ngIf="patient.gender">{{ patient.gender }}</span>
+                  <span *ngIf="patient.gender && patient.age" class="mx-1">•</span>
+                  <span *ngIf="patient.age">Age {{ patient.age }}</span>
+                  <span *ngIf="(patient.gender || patient.age) && patient.rendezvous" class="mx-1">•</span>
+                  <span *ngIf="patient.rendezvous">Next: {{ patient.rendezvous | date:'MMM d, y' }}</span>
                 </div>
               </div>
-            </td>
-            <td>
-              <div class="mb-1 contact-info">
-                <i class="fas fa-phone fa-sm mr-1 text-muted"></i>
-                {{ patient.phone || 'N/A' }}
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" (click)="openEditDialog(patient)" title="Edit" aria-label="Edit patient">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button *ngIf="authService.hasRole('admin')" class="btn btn-sm btn-outline-danger" (click)="openDeleteDialog(patient)" title="Delete" aria-label="Delete patient">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-3 d-grid gap-2">
+            <div class="d-flex align-items-center justify-content-between gap-2 p-2 rounded" style="background: var(--app-surface-2); border: 1px solid var(--app-border); border-radius: 12px;">
+              <div class="d-flex align-items-center gap-2" style="min-width: 0;">
+                <i class="fas fa-phone text-muted"></i>
+                <span style="font-weight: 800;">{{ patient.phone || 'N/A' }}</span>
               </div>
-              <div class="contact-info">
-                <i class="fas fa-envelope fa-sm mr-1 text-muted"></i>
-                {{ patient.email || 'N/A' }}
+              <span class="text-muted small">Phone</span>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between gap-2 p-2 rounded" style="background: var(--app-surface-2); border: 1px solid var(--app-border); border-radius: 12px;">
+              <div class="d-flex align-items-center gap-2" style="min-width: 0;">
+                <i class="fas fa-envelope text-muted"></i>
+                <span class="text-truncate" style="font-weight: 800;">{{ patient.email || 'N/A' }}</span>
               </div>
-            </td>
-            <td>{{ patient.rendezvous | date:'yy/MM/dd' }}</td>
-            <td class="text-right">
-              <div class="btn-group">
-                <button class="btn btn-sm btn-outline-primary mr-2" (click)="openEditDialog(patient)">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" (click)="openDeleteDialog(patient)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+              <span class="text-muted small">Email</span>
+            </div>
+          </div>
+
+          <div class="mt-3 p-3 rounded" style="border: 1px solid var(--app-border); border-radius: 12px; background: var(--app-surface);">
+            <div class="text-muted small" style="font-weight: 800;">
+              <i class="fas fa-notes-medical me-1"></i>
+              Notes
+            </div>
+            <p class="mb-0 mt-1 app-clamp-2" style="color: var(--app-text);">
+              {{ patient.medicalHistory || 'No medical history recorded.' }}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -219,7 +252,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
-          <button type="button" class="btn btn-danger" (click)="handleDeletePatient()">Delete Patient</button>
+          <button *ngIf="authService.hasRole('admin')" type="button" class="btn btn-danger" (click)="handleDeletePatient()">Delete Patient</button>
         </div>
       </div>
     </div>

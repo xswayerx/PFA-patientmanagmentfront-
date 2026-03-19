@@ -5,7 +5,7 @@
 
 .appointment-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
 }
 
 .border-left-4 {
@@ -28,27 +28,27 @@
 }
 
 .text-success {
-  color: #28a745 !important;
+  color: var(--app-success) !important;
 }
 
 .text-danger {
-  color: #dc3545 !important;
+  color: var(--app-danger) !important;
 }
 
 .text-primary {
-  color: #007bff !important;
+  color: var(--app-primary-700) !important;
 }
 
 .border-success {
-  border-left-color: #28a745 !important;
+  border-left-color: var(--app-success) !important;
 }
 
 .border-danger {
-  border-left-color: #dc3545 !important;
+  border-left-color: var(--app-danger) !important;
 }
 
 .border-primary {
-  border-left-color: #007bff !important;
+  border-left-color: var(--app-primary) !important;
 }
 
 .modal {

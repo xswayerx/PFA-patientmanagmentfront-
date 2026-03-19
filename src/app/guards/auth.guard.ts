@@ -10,12 +10,14 @@ export class AuthGuard implements CanActivate {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  canActivate(): boolean {
+  async canActivate(): Promise<boolean> {
     if (this.authService.isAuthenticated) {
       return true;
-    } else {
-      this.router.navigate(['/login']);
-      return false;
     }
+
+    // Kick off Keycloak login. Keycloak will redirect back to the app.
+    // We return false to cancel current navigation.
+    await this.authService.login();
+    return false;
   }
 }

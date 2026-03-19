@@ -1,3 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.login-shell {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	background: radial-gradient(900px 500px at 15% 10%, rgba(var(--app-primary-rgb), 0.18), transparent 60%),
+						radial-gradient(800px 450px at 85% 0%, rgba(var(--app-primary-rgb), 0.12), transparent 55%),
+							var(--app-bg);
+}
